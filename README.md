@@ -1,3 +1,7 @@
+> **Steam Frame fork.** This is [Starship](https://github.com/HarbourMasters/Starship) with a native ARM64 Linux build for
+> Valve's Steam Frame, on the `steam-frame` branch. Download `starship-steam-frame-arm64.zip` from the
+> [releases](../../releases) and read `README-steam-frame.txt` inside it. No ROM is included: bring your own Star Fox 64 ROM.
+
 [comment]: <> (Todo: Make Light Mode Image)
 [comment]: <> (Todo: Make Dark Mode Image)
  

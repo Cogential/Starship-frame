@@ -42,6 +42,16 @@ bool GameExtractor::SelectGameFromUI() {
     return true;
 }
 
+bool GameExtractor::LoadGame(const fs::path& path) {
+    std::ifstream file(path, std::ios::binary);
+    if (!file.is_open()) {
+        return false;
+    }
+    this->mGamePath = path;
+    this->mGameData = std::vector<uint8_t>( std::istreambuf_iterator( file ), {} );
+    return !this->mGameData.empty();
+}
+
 std::optional<std::string> GameExtractor::ValidateChecksum() const {
     const auto rom = new N64::Cartridge(this->mGameData);
     rom->Initialize();

@@ -32,6 +32,8 @@ class GameEngine {
     GameEngine();
     void StartFrame() const;
     static bool GenAssetFile(bool exitOnFail = true);
+    // Processes every supported ROM in the data and install folders without asking (Steam Frame).
+    static void GenAssetFilesFromFolders();
     static void Create();
     static void HandleAudioThread();
     static void StartAudioFrame();

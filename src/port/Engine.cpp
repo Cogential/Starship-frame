@@ -40,6 +40,7 @@
 #include "audio/GameAudio.h"
 #include "port/patches/DisplayListPatch.h"
 #include "port/mods/PortEnhancements.h"
+#include "port/SteamFrame/SteamFrame.h"
 
 #include <Fast3D/interpreter.h>
 #include <filesystem>
@@ -80,6 +81,18 @@ GameEngine::GameEngine() {
 #endif
 
     if (std::filesystem::exists(main_path)) {
+        archiveFiles.push_back(main_path);
+    } else if (SteamFrame::IsSteamFrame()) {
+        // No prompts or file dialogs on the Frame: process the ROMs put in the data folder.
+        GenAssetFilesFromFolders();
+        if (!std::filesystem::exists(main_path)) {
+            ShowMessage("No Star Fox 64 ROM found",
+                        ("Copy your Star Fox 64 ROM (US 1.0 or 1.1, .z64) to\n" +
+                         std::filesystem::absolute(Ship::Context::GetAppDirectoryPath()).string() +
+                         "\nand start Starship again.")
+                            .c_str());
+            exit(1);
+        }
         archiveFiles.push_back(main_path);
     } else {
         if (ShowYesNoBox("Starship - Asset Extraction", "Please provide a Starfox 64 ROM.\n\nSupported Versions:\nUS 1.0\nUS 1.1\n\nAssets will be extracted into an O2R file.") == IDYES) {
@@ -128,6 +141,7 @@ GameEngine::GameEngine() {
     this->context->InitConfiguration();    // without this line InitConsoleVariables fails at Config::Reload()
     this->context->InitConsoleVariables(); // without this line the controldeck constructor failes in
                                            // ShipDeviceIndexMappingManager::UpdateControllerNamesFromConfig()
+    SteamFrame::ApplyDefaults();
 
     auto defaultMappings = std::make_shared<Ship::ControllerDefaultMappings>(
         // KeyboardKeyToButtonMappings - use built-in LUS defaults
@@ -169,6 +183,7 @@ GameEngine::GameEngine() {
 
     auto audioChannelsSetting = Ship::Context::GetInstance()->GetConfig()->GetCurrentAudioChannelsSetting();
     this->context->Init(archiveFiles, {}, 3, { 32000, 1024, 1680, audioChannelsSetting }, window, controlDeck);
+    SteamFrame::SetupGui();
 
 #ifndef __SWITCH__
     Ship::Context::GetInstance()->GetLogger()->set_level(
@@ -290,6 +305,25 @@ bool GameEngine::GenAssetFile(bool exitOnFail) {
     ShowMessage(("Starship - Extraction - Found " + game.value()).c_str(), "The extraction process will now begin.\n\nThis may take a few minutes.", SDL_MESSAGEBOX_INFORMATION);
 
     return extractor->GenerateOTR();
+}
+
+void GameEngine::GenAssetFilesFromFolders() {
+    for (const auto& rom : SteamFrame::FindRoms()) {
+        GameExtractor extractor;
+        if (!extractor.LoadGame(rom)) {
+            SPDLOG_WARN("Could not read {}", rom);
+            continue;
+        }
+        const auto game = extractor.ValidateChecksum();
+        if (!game.has_value()) {
+            SPDLOG_WARN("{} is not a supported Star Fox 64 ROM, skipping it", rom);
+            continue;
+        }
+        SPDLOG_INFO("Extracting {} ({})", rom, game.value());
+        if (!extractor.GenerateOTR()) {
+            SPDLOG_ERROR("Extraction of {} failed", rom);
+        }
+    }
 }
 
 void GameEngine::Create() {
