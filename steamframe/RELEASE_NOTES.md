@@ -10,3 +10,5 @@ On the Frame (detected at launch, `STARSHIP_STEAM_FRAME=0/1` overrides):
 - ROMs in the data and install folders are processed automatically; with none, a message says where to put it
 
 Built natively on GitHub's `ubuntu-22.04-arm` runner for ARMv8.2 (Snapdragon 8 Gen 3 tuned).
+
+**Tested so far:** builds and packages on the Arm runner; the packaged binary starts under qemu-aarch64 and, with no ROM, shows where to put it. Not yet tested on the Frame or with a ROM.
