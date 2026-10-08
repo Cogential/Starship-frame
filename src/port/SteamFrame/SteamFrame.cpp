@@ -102,12 +102,13 @@ void ApplyDefaults() {
 
     SPDLOG_INFO("Steam Frame detected, applying Steam Frame defaults");
 
+    // libultraship's CVAR_* names are only defined inside libultraship, so these are spelled out.
     // The Frame has no keyboard or mouse in the headset: let the controller's View button open
     // the menu and drive it.
-    CVarRegisterInteger(CVAR_IMGUI_CONTROLLER_NAV, 1);
+    CVarRegisterInteger("gControlNav", 1);
     // The game is presented as a single virtual screen, so keep popout windows inside it.
-    CVarRegisterInteger(CVAR_ENABLE_MULTI_VIEWPORTS, 0);
-    CVarRegisterInteger(CVAR_VSYNC_ENABLED, 1);
+    CVarRegisterInteger("gEnableMultiViewports", 0);
+    CVarRegisterInteger("gVsyncEnabled", 1);
     CVarSave();
 
     // libultraship only goes fullscreen by itself on VARIANT_ID=steamdeck; otherwise it opens a
