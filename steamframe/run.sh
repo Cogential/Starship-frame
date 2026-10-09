@@ -22,4 +22,9 @@ if [ ! -f "$SHIP_HOME/sf64.o2r" ]; then
     done
 fi
 
+# Steam describes its virtual Xbox pad as "Steam Frame Controllers" (28de:11e0), which SDL has
+# no mapping for, so only D-pad up, A and B would work. Without the description SDL sees an
+# ordinary Xbox 360 pad.
+unset SteamVirtualGamepadInfo
+
 exec "$DIR/Starship" "$@"
